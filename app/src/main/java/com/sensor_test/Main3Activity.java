@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +40,7 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
     private MyService mBluetoothLeService;
     private String name, address;
     private Button connectButton, newvalue;
-    private Button sensorStatus;
+    private Button sensorStatus,vibrate;
     private TextView connectStatus;
     private boolean mConnect = false;
     private boolean mOpen = false;
@@ -56,6 +57,7 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
     ArrayList<Entry> values6;
     LineData data;
     int counter = 0;
+    Handler handler=new Handler();
     // Code to manage Service lifecycle.
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -103,10 +105,12 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         connectButton = findViewById(R.id.connect);
         newvalue = findViewById(R.id.newvalue);
         sensorStatus = findViewById(R.id.open);
+        vibrate=findViewById(R.id.vibrate);
         connectStatus = findViewById(R.id.device_status);
         connectStatus.setText("连接状态：disconnect");
         connectButton.setOnClickListener(this);
         sensorStatus.setOnClickListener(this);
+        vibrate.setOnClickListener(this);
         Intent gattServiceIntent = new Intent(this, MyService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
@@ -155,7 +159,6 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
                         sensorStatus.setText("打开陀螺仪");
                     }
                 }
-
             } else if (MyService.NOTIFY_DATA.equals(action)) {
                 String stringExtra = intent.getStringExtra(MyService.VALUE);
                 Log.e(TAG, "brodcast" + stringExtra);
@@ -228,6 +231,13 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
                 }
 
                 break;
+            case R.id.vibrate:
+                if (mConnect) {
+                    sendMsg("55AA2C00");
+                } else {
+                    Toast.makeText(this, "请先连接设备", Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
     }
 
@@ -281,7 +291,7 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMaximum(100f);
+        leftAxis.setAxisMaximum(255f);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawGridLines(true);
         YAxis rightAxis = chart.getAxisRight();
@@ -331,7 +341,7 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
 
         YAxis leftAxis = chart2.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMaximum(100f);
+        leftAxis.setAxisMaximum(255f);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawGridLines(true);
         YAxis rightAxis = chart2.getAxisRight();

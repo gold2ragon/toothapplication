@@ -28,6 +28,7 @@ public class MyService extends Service {
     public static final String CONNECT_STATUS="com.qijin.bledemo.connect_status";
     public static final String DISCONNECT_STATUS="com.qijin.bledemo.disconnect_status";
     public static final String WRITE_SUCCESS="com.qijin.bledemo.write_success";
+    public static final String WRITE_FAIL="com.qijin.bledemo.write_fail";
     public static final String NOTIFY_DATA="com.qijin.bledemo.notify_data";
     public static final String VALUE="ex_value";
 
@@ -101,9 +102,11 @@ public class MyService extends Service {
         public void onCharacteristicWrite (BluetoothGatt gatt,
                                            BluetoothGattCharacteristic characteristic,
                                            int status){
-//            String value=HexUtil.bytesToHexString(characteristic.getValue());
-            broadcastUpdate(WRITE_SUCCESS, status+"");
-            Log.e(TAG," onCharacteristicWrite"+status);
+            String value=HexUtil.bytesToHexString(characteristic.getValue());
+            if ("55aa2e00".equals(value)||"55aa2f00".equals(value)){
+                broadcastUpdate(WRITE_SUCCESS, status+"");
+            }
+            Log.e(TAG," onCharacteristicWrite"+value);
 
         }
     };
@@ -120,10 +123,10 @@ public class MyService extends Service {
                                  final String value) {
         final Intent intent = new Intent(action);
 
-            if (value != null) {
-                intent.putExtra(VALUE, value);
-            }
-            //TODO 处理数据
+        if (value != null) {
+            intent.putExtra(VALUE, value);
+        }
+        //TODO 处理数据
         sendBroadcast(intent);
     }
 
@@ -263,7 +266,7 @@ public class MyService extends Service {
 
     private void enableGattServicesNotification(BluetoothGattCharacteristic gattCharacteristic) {
         if (gattCharacteristic == null) return;
-       setCharacteristicNotification(gattCharacteristic,true);
+        setCharacteristicNotification(gattCharacteristic,true);
     }
 
 //    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
@@ -284,7 +287,7 @@ public class MyService extends Service {
 //
 //    }
 
-//    //开启或者关闭notification  虽然里面有heart 的内容
+    //    //开启或者关闭notification  虽然里面有heart 的内容
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
